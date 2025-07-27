@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malla Interactiva Ingeniería Civil Química</title>
+  <style>
+ body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(to right, #c0e0f5, #e3f2fd);
+  padding: 20px;
+  color: #2c3e50;
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+  font-size: 2.2em;
+  margin-bottom: 20px;
+}
+
+#creditos {
+  font-weight: bold;
+  font-size: 1.3em;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.semestre {
+  background-color: #ffffffee;
+  border: 2px solid #90caf9;
+  border-radius: 20px;
+  padding: 10px 15px;
+  margin: 15px 0;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.semestre h2 {
+  color: #1565c0;
+  font-size: 1.5em;
+  border-bottom: 2px dashed #90caf9;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+
+.contenedor-ramos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ramo {
+  background-color: #e3f2fd;
+  border: 1px solid #64b5f6;
+  border-radius: 15px;
+  padding: 10px;
+  min-width: 120px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 0.95em;
+}
+
+.ramo:hover {
+  background-color: #bbdefb;
+}
+
+.ramo.locked {
+  background-color: #eeeeee;
+  color: #aaa;
+  border: 1px dashed #ccc;
+  cursor: not-allowed;
+}
+
+.ramo.completed {
+  background-color: #a5d6a7;
+  border: 1px solid #66bb6a;
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+  </style>
+</head>
+<body>
+  <h1>Malla Interactiva - Ingeniería Civil Química</h1>
+  <div class="contador">Créditos obtenidos: <span id="creditos">0</span></div>
+  <div id="malla"></div>
+
+  <script>
+    const ramos = [
+      { id: 'calculo1', nombre: 'Cálculo I', creditos: 6, prereq: [], semestre: 1 },
+      { id: 'algebra1', nombre: 'Álgebra I', creditos: 6, prereq: [], semestre: 1 },
+      { id: 'grafica', nombre: 'Gráficas de Ingeniería', creditos: 5, prereq: [], semestre: 1 },
+      { id: 'quim1', nombre: 'Química General I', creditos: 5, prereq: [], semestre: 1 },
+      { id: 'introIQ', nombre: 'Introducción a la Ingeniería Química', creditos: 5, prereq: [], semestre: 1 },
+
+      { id: 'calculo2', nombre: 'Cálculo II', creditos: 6, prereq: ['calculo1'], semestre: 2 },
+      { id: 'algebra2', nombre: 'Álgebra II', creditos: 6, prereq: ['algebra1'], semestre: 2 },
+      { id: 'fisica1', nombre: 'Física I', creditos: 8, prereq: ['algebra1', 'calculo1'], semestre: 2 },
+      { id: 'quim2', nombre: 'Química General II', creditos: 5, prereq: ['quim1'], semestre: 2 },
+
+      { id: 'calculo3', nombre: 'Cálculo III', creditos: 6, prereq: ['calculo2'], semestre: 3 },
+      { id: 'fisica2', nombre: 'Física II', creditos: 8, prereq: ['fisica1'], semestre: 3 },
+      { id: 'organica', nombre: 'Química Orgánica', creditos: 6, prereq: ['quim2'], semestre: 3 },
+      { id: 'lenguaje', nombre: 'Lenguaje y Programación', creditos: 4, prereq: ['algebra2'], semestre: 3 },
+      { id: 'termoiq', nombre: 'Termodinámica Química', creditos: 6, prereq: ['organica'], semestre: 3 },
+
+      { id: 'ecuaciones', nombre: 'Ecuaciones Diferenciales y Aplicaciones', creditos: 6, prereq: ['calculo3','lenguaje'], semestre: 4 },
+      { id: 'mecanica', nombre: 'Mecánica', creditos: 6, prereq: ['fisica2'], semestre: 4 },
+      { id: 'analitica', nombre: 'Química Analítica', creditos: 5, prereq: ['quim2'], semestre: 4 },
+      { id: 'estadistica', nombre: 'Estadística', creditos: 5, prereq: ['calculo2'], semestre: 4 },
+      { id: 'balances', nombre: 'Balances de Materia y Energía', creditos: 6, prereq: ['termoiq'], semestre: 4 },
+
+      { id: 'fluidos', nombre: 'Mecánica de Fluidos', creditos: 6, prereq: ['mecanica'], semestre: 5 },
+      { id: 'fundamentosElec', nombre: 'Fund. Ing. Eléctrica', creditos: 6, prereq: ['fisica2'], semestre: 5 },
+      { id: 'polimeros', nombre: 'Polímeros Industriales', creditos: 6, prereq: ['organica'], semestre: 5 },
+      { id: 'termoProcesos', nombre: 'Termodinámica de Procesos Químicos', creditos: 6, prereq: ['balances'], semestre: 5 },
+
+      { id: 'transferenciaCalor', nombre: 'Transferencia de Calor', creditos: 6, prereq: ['ecuaciones','fluidos'], semestre: 6 },
+      { id: 'transferenciaMateria', nombre: 'Transferencia de Materia', creditos: 6, prereq: ['termoProcesos'], semestre: 6 },
+      { id: 'bioquimica', nombre: 'Bioquímica Industrial', creditos: 6, prereq: ['organica'], semestre: 6 },
+      { id: 'materiales', nombre: 'Ciencias de los Materiales', creditos: 6, prereq: ['termoiq'], semestre: 6 },
+
+      { id: 'reactores', nombre: 'Diseño de Reactores', creditos: 6, prereq: ['transferenciaMateria','transferenciaCalor'], semestre: 7 },
+      { id: 'labProcesos', nombre: 'Lab. de Procesos Químicos', creditos: 6, prereq: ['transferenciaCalor'], semestre: 7 },
+      { id: 'experimentos', nombre: 'Diseño de Experimentos', creditos: 6, prereq: ['estadistica'], semestre: 7 },
+      { id: 'economia', nombre: 'Economia y negocios', creditos: 6, extraReq: (ct) => ct >= 160, semestre: 7 },
+
+
+      { id: 'bioreactores', nombre: 'Diseño de Bioreactores', creditos: 6, prereq: ['reactores'], semestre: 8 },
+      { id: 'procesosIQ', nombre: 'Investigación en Procesos', creditos: 5, prereq: ['labProcesos'], semestre: 8 },
+{ id: 'medioAmbiente', nombre: 'Ing. Medio Ambiente y Energías Renovables', creditos: 6, extraReq: (ct) => ct >= 200, semestre: 8 },
+{ id: 'evaproyecto', nombre: 'Formulacion y evaluacion de proyectos', creditos: 6, prereq: ['economia'], semestre: 8},
+
+      { id: 'dinamica', nombre: 'Dinámica y Control de Procesos', creditos: 6, prereq: ['reactores'], semestre: 9 },
+      { id: 'gestionEmp', nombre: 'Gestión de Empresas', creditos: 6, prereq: ['economia'], semestre: 9 },
+      { id: 'marketing', nombre: 'Marketing', creditos: 3, prereq: ['economia'], semestre: 9 },
+{ id: 'electivo1', nombre: 'Electivo Profesional', creditos: 6, extraReq: (ct) => ct >= 220, semestre: 9 },
+{ id: 'electivo2', nombre: 'Electivo Profesional', creditos: 6, extraReq: (ct) => ct >= 220, semestre: 9 },
+{ id: 'electivo3', nombre: 'Electivo Profesional', creditos: 6, extraReq: (ct) => ct >= 220, semestre: 9 },
+
+      { id: 'simulacion', nombre: 'Simulación y Optimización de Plantas', creditos: 6, prereq: ['dinamica'], semestre: 10 },
+      { id: 'proyectoIng', nombre: 'Proyecto de Ingeniería', creditos: 6, prereq: ['simulacion'], semestre: 10 },
+{ id: 'electivo4', nombre: 'Electivo Profesional', creditos: 6, extraReq: (ct) => ct >= 220, semestre: 10},
+{ id: 'electivo5', nombre: 'Electivo Profesional', creditos: 6, extraReq: (ct) => ct >= 220, semestre: 10 },
+{ id: 'electivo6', nombre: 'Electivo Profesional', creditos: 6, extraReq: (ct) => ct >= 220, semestre: 10 },
+{ id: 'habilitacion', nombre: 'Habilitación Profesional', creditos: 30, extraReq: (ct) => ct >= 300, semestre: 11 }
+   ];
+// Inicializar completados y creditos
+let completados = new Set(JSON.parse(localStorage.getItem('completados') || "[]"));
+let creditosTotales = 0;
+
+function guardarProgreso() {
+  localStorage.setItem('completados', JSON.stringify(Array.from(completados)));
+  localStorage.setItem('creditosTotales', creditosTotales);
+}
+
+function calcularCreditos() {
+  creditosTotales = 0;
+  completados.forEach(id => {
+    const ramo = ramos.find(r => r.id === id);
+    if (ramo) creditosTotales += ramo.creditos;
+  });
+  document.getElementById('creditos').innerText = creditosTotales;
+  console.log('Créditos totales:', creditosTotales);
+}
+
+function renderRamos() {
+  const contenedor = document.getElementById('malla');
+  contenedor.innerHTML = '';
+  const porSemestre = {};
+  ramos.forEach(r => {
+    if (!porSemestre[r.semestre]) porSemestre[r.semestre] = [];
+    porSemestre[r.semestre].push(r);
+  });
+  console.log('Semestres detectados:', Object.keys(porSemestre));
+
+  for (let sem = 1; sem <= 11; sem++) {
+    const semDiv = document.createElement('div');
+    semDiv.className = 'semestre';
+    semDiv.innerHTML = `<h2>Semestre ${sem}</h2>`;
+    const lista = document.createElement('div');
+    lista.className = 'contenedor-ramos';
+
+    const ramosSem = porSemestre[sem] || [];
+
+    ramosSem.forEach(r => {
+      const div = document.createElement('div');
+      div.className = 'ramo';
+      div.id = r.id;
+      div.innerHTML = `<strong>${r.nombre}</strong><br>${r.creditos} SCT`;
+     const prereqCumplidos = (r.prereq || []).every(pr => completados.has(pr));
+      const cumpleExtraReq = r.extraReq ? r.extraReq(creditosTotales) : true;
+      if (!completados.has(r.id)) {
+        if ((!prereqCumplidos && r.prereq.length > 0) || !cumpleExtraReq) {
+          div.classList.add('locked');
+        } else {
+          div.addEventListener('click', () => completarRamo(r));
+        }
+      } else {
+        div.classList.add('completed');
+        div.addEventListener('click', () => completarRamo(r)); // Permite desmarcar
+      }
+      lista.appendChild(div);
+    });
+
+    semDiv.appendChild(lista);
+    contenedor.appendChild(semDiv);
+  }
+}
+
+function completarRamo(ramo) {
+  if (completados.has(ramo.id)) {
+    completados.delete(ramo.id);
+  } else {
+    completados.add(ramo.id);
+  }
+  calcularCreditos();
+  guardarProgreso();
+  renderRamos();
+}
+
+calcularCreditos();
+renderRamos();
+
+  </script>
+</body>
+</html>
